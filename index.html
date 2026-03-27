@@ -452,7 +452,7 @@ body {
 <div class="screen has-nav" id="scr-home">
   <div class="topbar">
     <div>
-      <div class="topbar-logo">Feed<span>Forward</span></div>
+      <div class="topbar-logo">Food<span>Bridge</span></div>
       <div style="font-size:11px;color:var(--muted);margin-top:-2px" id="home-location">📍 Chennai</div>
     </div>
     <button class="topbar-icon" onclick="showScreen('scr-notifications')"><span>🔔</span><span class="badge-dot" id="notif-dot"></span></button>
@@ -613,7 +613,7 @@ function seedIfEmpty(){
   db.set('listings', listings);
   db.set('requests', []);
   db.set('notifications', [
-    { id:'n1', icon:'🎉', title:'Welcome to FeedForward!', msg:'Start browsing donors near you and request food.', time:'just now', read:false },
+    { id:'n1', icon:'🎉', title:'Welcome to FoodBridge!', msg:'Start browsing donors near you and request food.', time:'just now', read:false },
     { id:'n2', icon:'🍛', title:'New listing from Saravana Bhavan', msg:'30 portions of Rice & Sambar available today 2–5 PM', time:'5 min ago', read:false },
   ]);
   db.set('seeded', true);
@@ -1278,7 +1278,7 @@ function renderProfile(){
     </div>
 
     <button class="btn-full" style="background:#FEE2E2;color:#DC2626;font-family:'Bricolage Grotesque',sans-serif;font-size:15px;font-weight:700;padding:14px;border-radius:14px;border:none;cursor:pointer" onclick="logout()">🚪 Logout</button>
-    <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:12px">FeedForward v1.0 • Fighting food waste together 🌱</p>
+    <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:12px">FoodBridge v1.0 • Fighting food waste together 🌱</p>
     <div style="height:20px"></div>
   `;
 }
