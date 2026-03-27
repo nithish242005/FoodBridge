@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FeedForward — Food Donor Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FFF8F0;
+  --surface: #FFFFFF;
+  --surface2: #FFF3E6;
+  --border: #F0E0CC;
+  --primary: #FF5A1F;
+  --primary-dark: #E04000;
+  --primary-light: #FFF0EB;
+  --secondary: #2D6A4F;
+  --secondary-light: #E8F5EE;
+  --accent: #F4A942;
+  --accent-light: #FFF8E7;
+  --text: #1A1208;
+  --text2: #5C4A2A;
+  --muted: #9E8A72;
+  --success: #27AE60;
+  --danger: #E74C3C;
+  --shadow: 0 2px 16px rgba(255,90,31,0.10);
+  --shadow-lg: 0 8px 40px rgba(255,90,31,0.15);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── SCREEN SYSTEM ── */
+.screen { display:none; min-height:100vh; }
+.screen.active { display:block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── TOPBAR ── */
+.topbar {
+  position: sticky; top:0; z-index:200;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  display: flex; align-items: center; gap: 12px;
+  height: 60px;
+  box-shadow: var(--shadow);
+}
+.topbar-logo { font-family:'Bricolage Grotesque',sans-serif; font-weight:800; font-size:20px; color:var(--primary); flex:1; cursor:pointer; }
+.topbar-logo span { color: var(--secondary); }
+.topbar-icon {
+  width:38px; height:38px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; background:var(--surface2); border:none; cursor:pointer;
+  position:relative; transition: background 0.2s;
+}
+.topbar-icon:hover { background: var(--primary-light); }
+.badge-dot {
+  position:absolute; top:6px; right:6px;
+  width:8px; height:8px; border-radius:50%; background:var(--primary);
+  border:2px solid #fff;
+}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: fixed; bottom:0; left:0; right:0; z-index:200;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex; padding: 6px 0 10px;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+}
+.nav-btn {
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+  border:none; background:none; cursor:pointer; padding: 4px 0;
+  color: var(--muted); font-family:'Outfit',sans-serif; font-size:10px; font-weight:500;
+  transition: color 0.2s;
+}
+.nav-btn .nav-ico { font-size:22px; line-height:1; }
+.nav-btn.active { color: var(--primary); }
+.nav-btn.active .nav-ico { transform: scale(1.15); }
+
+/* ── HERO BANNER ── */
+.hero {
+  background: linear-gradient(135deg, var(--primary) 0%, #FF8C42 100%);
+  padding: 28px 20px 32px;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content:'';
+  position:absolute; right:-30px; top:-30px;
+  width:180px; height:180px; border-radius:50%;
+  background: rgba(255,255,255,0.08);
+}
+.hero::after {
+  content:'';
+  position:absolute; right:40px; bottom:-50px;
+  width:120px; height:120px; border-radius:50%;
+  background: rgba(255,255,255,0.06);
+}
+.hero-tag { font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.75); margin-bottom:8px; }
+.hero-title { font-family:'Bricolage Grotesque',sans-serif; font-size:26px; font-weight:800; color:#fff; line-height:1.2; margin-bottom:6px; }
+.hero-sub { font-size:14px; color:rgba(255,255,255,0.85); margin-bottom:20px; }
+.hero-search {
+  display:flex; align-items:center; gap:10px;
+  background:#fff; border-radius:14px;
+  padding: 10px 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+.hero-search input {
+  flex:1; border:none; outline:none; font-family:'Outfit',sans-serif;
+  font-size:14px; color:var(--text); background:transparent;
+}
+.hero-search input::placeholder { color: var(--muted); }
+.hero-search-ico { font-size:18px; }
+
+/* ── STATS STRIP ── */
+.stats-strip {
+  display: flex; gap: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.stat-pill {
+  flex:1; text-align:center; padding: 14px 8px;
+  border-right: 1px solid var(--border);
+}
+.stat-pill:last-child { border-right:none; }
+.stat-pill-val { font-family:'Bricolage Grotesque',sans-serif; font-size:20px; font-weight:800; color:var(--primary); }
+.stat-pill-lbl { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin-top:2px; }
+
+/* ── SECTION ── */
+.section { padding: 20px 16px; }
+.section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.section-title { font-family:'Bricolage Grotesque',sans-serif; font-size:18px; font-weight:800; }
+.see-all { font-size:13px; color:var(--primary); font-weight:600; cursor:pointer; }
+
+/* ── CATEGORY SCROLL ── */
+.cat-scroll { display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
+.cat-scroll::-webkit-scrollbar { display:none; }
+.cat-chip {
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  flex-shrink:0; width:72px; cursor:pointer;
+  padding: 12px 8px; border-radius:14px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  transition: all 0.2s;
+}
+.cat-chip.active, .cat-chip:hover { background:var(--primary-light); border-color:var(--primary); }
+.cat-chip-ico { font-size:26px; }
+.cat-chip-lbl { font-size:11px; font-weight:600; color:var(--text2); text-align:center; line-height:1.2; }
+
+/* ── DONOR CARD ── */
+.donor-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: var(--shadow);
+}
+.donor-card:hover { transform:translateY(-3px); box-shadow: var(--shadow-lg); }
+.donor-card-img {
+  height: 130px; width:100%;
+  background: linear-gradient(135deg, #f0e6d6 0%, #ffe0c0 100%);
+  display: flex; align-items:center; justify-content:center;
+  font-size: 56px; position: relative;
+}
+.donor-card-badge {
+  position:absolute; top:10px; left:10px;
+  background:var(--primary); color:#fff;
+  font-size:10px; font-weight:700; padding:3px 8px; border-radius:20px;
+  letter-spacing:0.5px;
+}
+.donor-card-badge.green { background:var(--secondary); }
+.donor-card-body { padding: 12px 14px 14px; }
+.donor-card-name { font-family:'Bricolage Grotesque',sans-serif; font-size:15px; font-weight:700; margin-bottom:3px; }
+.donor-card-meta { font-size:12px; color:var(--muted); display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.donor-card-footer { display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:10px; border-top:1px solid var(--border); }
+.rating { font-size:12px; font-weight:600; color:#fff; background:#27AE60; padding:2px 8px; border-radius:4px; }
+.timing { font-size:11px; color:var(--muted); }
+
+/* ── GRID ── */
+.donor-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.donor-list { display:flex; flex-direction:column; gap:12px; }
+.donor-list-card {
+  background:var(--surface); border:1.5px solid var(--border); border-radius:var(--radius);
+  padding:14px; display:flex; gap:14px; align-items:center; cursor:pointer;
+  transition:all 0.2s; box-shadow:var(--shadow);
+}
+.donor-list-card:hover { border-color:var(--primary); transform:translateX(3px); }
+.donor-list-ico { width:54px; height:54px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; }
+.donor-list-info { flex:1; }
+.donor-list-name { font-family:'Bricolage Grotesque',sans-serif; font-size:15px; font-weight:700; }
+.donor-list-meta { font-size:12px; color:var(--muted); margin-top:3px; }
+.tag { font-size:10px; font-weight:600; padding:2px 8px; border-radius:20px; display:inline-block; }
+.tag-orange { background:var(--accent-light); color:var(--primary-dark); }
+.tag-green  { background:var(--secondary-light); color:var(--secondary); }
+.tag-blue   { background:#EEF5FF; color:#2563EB; }
+
+/* ── FOOD ITEM CARD ── */
+.food-item {
+  background:var(--surface); border:1.5px solid var(--border);
+  border-radius:var(--radius); padding:14px; display:flex; gap:12px;
+  transition:all 0.2s; margin-bottom:10px;
+}
+.food-item-img { width:80px; height:80px; border-radius:12px; object-fit:cover; background:var(--surface2); display:flex; align-items:center; justify-content:center; font-size:36px; flex-shrink:0; }
+.food-item-info { flex:1; }
+.food-item-name { font-family:'Bricolage Grotesque',sans-serif; font-size:15px; font-weight:700; }
+.food-item-desc { font-size:12px; color:var(--muted); margin:4px 0; line-height:1.4; }
+.food-item-qty { font-size:12px; color:var(--secondary); font-weight:600; }
+.food-item-action { display:flex; align-items:flex-end; flex-direction:column; justify-content:space-between; }
+.qty-control { display:flex; align-items:center; gap:0; background:var(--primary); border-radius:8px; overflow:hidden; }
+.qty-btn { width:28px; height:28px; border:none; background:transparent; color:#fff; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.15s; }
+.qty-btn:hover { background:rgba(255,255,255,0.2); }
+.qty-num { width:28px; text-align:center; color:#fff; font-weight:700; font-size:13px; }
+.add-btn {
+  background:var(--primary); color:#fff;
+  border:none; border-radius:8px; padding:6px 16px;
+  font-family:'Outfit',sans-serif; font-size:13px; font-weight:600;
+  cursor:pointer; transition:all 0.2s;
+}
+.add-btn:hover { background:var(--primary-dark); }
+.veg-dot { width:12px; height:12px; border-radius:2px; border:1.5px solid var(--secondary); display:flex; align-items:center; justify-content:center; margin-bottom:4px; }
+.veg-dot::after { content:''; width:6px; height:6px; border-radius:50%; background:var(--secondary); }
+
+/* ── DONOR PROFILE HEADER ── */
+.profile-hero {
+  background: linear-gradient(135deg, #2D6A4F 0%, #52B788 100%);
+  padding: 24px 20px 28px;
+  position: relative; overflow: hidden;
+}
+.profile-hero::before { content:''; position:absolute; right:-20px; top:-20px; width:140px; height:140px; border-radius:50%; background:rgba(255,255,255,0.07); }
+.profile-hero-ico { font-size:54px; margin-bottom:10px; }
+.profile-hero-name { font-family:'Bricolage Grotesque',sans-serif; font-size:22px; font-weight:800; color:#fff; }
+.profile-hero-meta { font-size:13px; color:rgba(255,255,255,0.8); margin-top:4px; }
+.profile-info-strip { display:flex; background:var(--surface); border-bottom:1px solid var(--border); }
+.pinfo { flex:1; text-align:center; padding:12px 6px; border-right:1px solid var(--border); }
+.pinfo:last-child { border-right:none; }
+.pinfo-val { font-family:'Bricolage Grotesque',sans-serif; font-size:18px; font-weight:800; color:var(--primary); }
+.pinfo-lbl { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; }
+
+/* ── CART BAR ── */
+.cart-bar {
+  position: fixed; bottom:68px; left:16px; right:16px; z-index:300;
+  background: var(--primary);
+  border-radius:var(--radius);
+  padding: 14px 18px;
+  display: flex; align-items:center; justify-content:space-between;
+  box-shadow: 0 8px 30px rgba(255,90,31,0.4);
+  cursor: pointer;
+  transform: translateY(100px); opacity:0;
+  transition: all 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.cart-bar.show { transform:translateY(0); opacity:1; }
+.cart-bar-left { display:flex; flex-direction:column; }
+.cart-bar-count { font-size:11px; color:rgba(255,255,255,0.85); }
+.cart-bar-total { font-family:'Bricolage Grotesque',sans-serif; font-size:17px; font-weight:800; color:#fff; }
+.cart-bar-cta { font-family:'Bricolage Grotesque',sans-serif; font-size:14px; font-weight:700; color:#fff; display:flex; align-items:center; gap:6px; }
+
+/* ── CART PAGE ── */
+.cart-item {
+  background:var(--surface); border:1.5px solid var(--border); border-radius:var(--radius);
+  padding:14px; display:flex; gap:12px; align-items:center; margin-bottom:10px;
+}
+.cart-item-ico { font-size:32px; }
+.cart-item-info { flex:1; }
+.cart-item-name { font-weight:700; font-size:14px; }
+.cart-item-donor { font-size:11px; color:var(--muted); margin-top:2px; }
+.bill-row { display:flex; justify-content:space-between; padding:8px 0; font-size:14px; border-bottom:1px dashed var(--border); }
+.bill-row:last-child { border:none; font-weight:700; font-size:15px; color:var(--primary); }
+
+/* ── ORDER TRACK ── */
+.track-step { display:flex; gap:14px; align-items:flex-start; padding:14px 0; }
+.track-step:not(:last-child) { border-bottom:1px solid var(--border); }
+.track-ico-wrap { display:flex; flex-direction:column; align-items:center; gap:0; flex-shrink:0; }
+.track-ico { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; }
+.track-ico.done { background:var(--secondary-light); }
+.track-ico.active { background:var(--primary-light); }
+.track-ico.pending { background:var(--border); }
+.track-title { font-weight:700; font-size:14px; margin-bottom:3px; }
+.track-sub { font-size:12px; color:var(--muted); }
+.track-time { font-size:11px; color:var(--primary); font-weight:600; margin-top:4px; }
+
+/* ── FORM ── */
+.form-group { margin-bottom:14px; }
+.form-group label { display:block; font-size:12px; font-weight:600; color:var(--text2); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px; }
+.form-group input, .form-group select, .form-group textarea {
+  width:100%; padding:12px 14px; border:1.5px solid var(--border); border-radius:var(--radius-sm);
+  font-family:'Outfit',sans-serif; font-size:14px; color:var(--text); background:var(--surface);
+  outline:none; transition:border-color 0.2s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:var(--primary); }
+.form-group textarea { resize:vertical; min-height:70px; }
+
+/* ── BUTTONS ── */
+.btn-full {
+  width:100%; padding:15px; border-radius:var(--radius); border:none;
+  font-family:'Bricolage Grotesque',sans-serif; font-size:16px; font-weight:700;
+  cursor:pointer; transition:all 0.2s;
+}
+.btn-primary-full { background:var(--primary); color:#fff; }
+.btn-primary-full:hover { background:var(--primary-dark); transform:translateY(-1px); box-shadow:0 6px 20px rgba(255,90,31,0.35); }
+.btn-ghost-full { background:var(--surface); color:var(--primary); border:2px solid var(--primary); }
+.back-btn {
+  width:34px; height:34px; border-radius:10px; border:none;
+  background:rgba(255,255,255,0.2); color:#fff; font-size:18px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.back-btn-dark { background:var(--surface2); color:var(--text); }
+
+/* ── PROFILE SCREEN ── */
+.profile-avatar {
+  width:80px; height:80px; border-radius:20px; background:var(--primary-light);
+  display:flex; align-items:center; justify-content:center; font-size:36px; margin:0 auto 12px;
+}
+.profile-name { font-family:'Bricolage Grotesque',sans-serif; font-size:22px; font-weight:800; text-align:center; }
+.profile-email { text-align:center; color:var(--muted); font-size:13px; margin-top:4px; }
+.menu-item {
+  display:flex; align-items:center; gap:14px; padding:15px 16px;
+  border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.15s;
+}
+.menu-item:hover { background:var(--surface2); }
+.menu-item:last-child { border-bottom:none; }
+.menu-item-ico { font-size:22px; width:36px; text-align:center; }
+.menu-item-label { flex:1; font-size:15px; font-weight:500; }
+.menu-item-arrow { color:var(--muted); font-size:18px; }
+
+/* ── TOAST ── */
+#toast {
+  position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:#1A1208; color:#fff; padding:10px 20px; border-radius:20px;
+  font-size:13px; font-weight:500; opacity:0; transition:all 0.3s; z-index:9999;
+  white-space:nowrap;
+}
+#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── MODAL ── */
+.overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:500; display:none; align-items:flex-end; }
+.overlay.open { display:flex; animation:fadeIn 0.2s; }
+.sheet {
+  background:var(--surface); border-radius:24px 24px 0 0;
+  width:100%; padding:24px 20px 32px;
+  animation: slideUp 0.3s cubic-bezier(0.175,0.885,0.32,1);
+}
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.sheet-title { font-family:'Bricolage Grotesque',sans-serif; font-size:20px; font-weight:800; margin-bottom:20px; }
+.sheet-handle { width:40px; height:4px; background:var(--border); border-radius:2px; margin:0 auto 16px; }
+
+/* ── EMPTY ── */
+.empty { text-align:center; padding:50px 20px; }
+.empty-ico { font-size:60px; margin-bottom:16px; }
+.empty-title { font-family:'Bricolage Grotesque',sans-serif; font-size:20px; font-weight:800; margin-bottom:8px; }
+.empty-sub { font-size:14px; color:var(--muted); line-height:1.5; }
+
+/* ── CHIP FILTERS ── */
+.chip-row { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; margin-bottom:14px; }
+.chip-row::-webkit-scrollbar { display:none; }
+.chip { flex-shrink:0; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:600; border:1.5px solid var(--border); background:var(--surface); cursor:pointer; transition:all 0.2s; color:var(--text2); }
+.chip.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+
+/* ── REGISTER DONOR TOGGLE ── */
+.role-card {
+  border:2px solid var(--border); border-radius:var(--radius); padding:18px;
+  cursor:pointer; transition:all 0.2s; text-align:center; flex:1;
+}
+.role-card.selected { border-color:var(--primary); background:var(--primary-light); }
+.role-ico { font-size:36px; margin-bottom:8px; }
+.role-title { font-family:'Bricolage Grotesque',sans-serif; font-size:16px; font-weight:800; }
+.role-sub { font-size:12px; color:var(--muted); margin-top:4px; }
+
+/* bottom padding for nav */
+.has-nav { padding-bottom: 76px; }
+
+/* ── SUCCESS ANIMATION ── */
+.success-circle { width:90px; height:90px; border-radius:50%; background:var(--secondary-light); display:flex; align-items:center; justify-content:center; font-size:42px; margin:0 auto 16px; animation:pop 0.5s cubic-bezier(0.175,0.885,0.32,1.275); }
+@keyframes pop { from{transform:scale(0)} to{transform:scale(1)} }
+
+/* ── NOTIFY BANNER ── */
+.notify-banner {
+  background:var(--accent-light); border:1px solid var(--accent);
+  border-radius:var(--radius-sm); padding:10px 14px;
+  display:flex; gap:10px; align-items:center; margin:0 16px 12px; font-size:13px;
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     SCREEN 1 — SPLASH / ONBOARDING
+════════════════════════════════════════════════════ -->
+<div class="screen active" id="scr-splash" style="background:var(--primary);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 28px;text-align:center">
+  <div style="font-size:80px;margin-bottom:20px;animation:pop 0.6s cubic-bezier(0.175,0.885,0.32,1.275)">🍱</div>
+  <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:34px;font-weight:800;color:#fff;margin-bottom:8px">FeedForward</div>
+  <div style="font-size:15px;color:rgba(255,255,255,0.85);margin-bottom:48px;line-height:1.5">Rescue surplus food.<br>Feed someone today.</div>
+  <div style="width:100%;max-width:360px;display:flex;flex-direction:column;gap:12px">
+    <button class="btn-full" style="background:#fff;color:var(--primary);font-family:'Bricolage Grotesque',sans-serif;font-size:16px;font-weight:800;padding:15px;border-radius:16px;border:none;cursor:pointer" onclick="goLogin()">Get Started 🍀</button>
+    <button class="btn-full" style="background:rgba(255,255,255,0.15);color:#fff;font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:600;padding:12px;border-radius:12px;border:1.5px solid rgba(255,255,255,0.35);cursor:pointer" onclick="quickDemo()">Quick Demo (Skip Login)</button>
+  </div>
+  <div style="margin-top:40px;font-size:12px;color:rgba(255,255,255,0.6)">Join 2,400+ donors fighting food waste 🌱</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SCREEN 2 — LOGIN / REGISTER
+════════════════════════════════════════════════════ -->
+<div class="screen" id="scr-login" style="min-height:100vh;background:var(--bg)">
+  <div style="background:var(--primary);padding:50px 24px 40px;text-align:center">
+    <div style="font-size:50px;margin-bottom:12px">🍱</div>
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:24px;font-weight:800;color:#fff">Welcome Back!</div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.8);margin-top:4px">Sign in to request or donate food</div>
+  </div>
+  <div style="padding:28px 20px">
+    <!-- Role selection -->
+    <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">I am a…</div>
+    <div style="display:flex;gap:10px;margin-bottom:22px">
+      <div class="role-card selected" id="role-receiver" onclick="selectRole('receiver')">
+        <div class="role-ico">🙏</div>
+        <div class="role-title">Receiver</div>
+        <div class="role-sub">I need food</div>
+      </div>
+      <div class="role-card" id="role-donor" onclick="selectRole('donor')">
+        <div class="role-ico">🤝</div>
+        <div class="role-title">Donor</div>
+        <div class="role-sub">I have surplus food</div>
+      </div>
+    </div>
+    <div class="form-group"><label>Full Name</label><input id="login-name" placeholder="Your full name" value="Priya Sharma"></div>
+    <div class="form-group"><label>Phone / Email</label><input id="login-phone" placeholder="+91 XXXXX XXXXX" value="9876543210"></div>
+    <div class="form-group"><label>City</label>
+      <select id="login-city">
+        <option>Chennai</option><option>Coimbatore</option><option>Madurai</option>
+        <option>Mumbai</option><option>Delhi</option><option>Bangalore</option>
+      </select>
+    </div>
+    <div id="donor-extra" style="display:none">
+      <div class="form-group"><label>Organisation / Name</label><input id="donor-org" placeholder="Restaurant / Home / Farm"></div>
+      <div class="form-group"><label>Type of Food You Donate</label><input id="donor-foodtype" placeholder="e.g. Cooked meals, Vegetables"></div>
+    </div>
+    <button class="btn-full btn-primary-full" onclick="doLogin()" style="margin-top:8px">Continue →</button>
+    <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:14px">By continuing, you agree to our Terms & Privacy Policy</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SCREEN 3 — HOME (RECEIVER)
+════════════════════════════════════════════════════ -->
+<div class="screen has-nav" id="scr-home">
+  <div class="topbar">
+    <div>
+      <div class="topbar-logo">Feed<span>Forward</span></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:-2px" id="home-location">📍 Chennai</div>
+    </div>
+    <button class="topbar-icon" onclick="showScreen('scr-notifications')"><span>🔔</span><span class="badge-dot" id="notif-dot"></span></button>
+    <button class="topbar-icon" onclick="showScreen('scr-cart')"><span>🛒</span><span class="badge-dot" id="cart-dot" style="display:none"></span></button>
+  </div>
+  <div id="home-content"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SCREEN 4 — DONOR PROFILE / FOOD LISTING
+════════════════════════════════════════════════════ -->
+<div class="screen has-nav" id="scr-donor-profile">
+  <div id="donor-profile-content"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SCREEN 5 — CART / CHECKOUT
+════════════════════════════════════════════════════ -->
+<div class="screen has-nav" id="scr-cart">
+  <div class="topbar" style="position:sticky">
+    <button class="back-btn-dark back-btn" onclick="goBack()" style="background:var(--surface2);color:var(--text)">←</button>
+    <div style="flex:1;font-family:'Bricolage Grotesque',sans-serif;font-size:17px;font-weight:800;margin-left:8px">Your Request</div>
+  </div>
+  <div id="cart-content" style="padding:16px"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SCREEN 6 — ORDER CONFIRMATION & TRACKING
+════════════════════════════════════════════════════ -->
+<div class="screen has-nav" id="scr-tracking">
+  <div class="topbar">
+    <button class="back-btn-dark back-btn" onclick="showScreen('scr-home')">←</button>
+    <div style="flex:1;font-family:'Bricolage Grotesque',sans-serif;font-size:17px;font-weight:800;margin-left:8px">Track Request</div>
+  </div>
+  <div id="tracking-content" style="padding:16px"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SCREEN 7 — MY ORDERS
+════════════════════════════════════════════════════ -->
+<div class="screen has-nav" id="scr-orders">
+  <div class="topbar">
+    <div style="flex:1;font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:800">My Requests</div>
+  </div>
+  <div id="orders-content" style="padding:16px"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SCREEN 8 — DONOR DASHBOARD
+════════════════════════════════════════════════════ -->
+<div class="screen has-nav" id="scr-donor-dash">
+  <div class="topbar">
+    <div style="flex:1">
+      <div class="topbar-logo">My <span>Donations</span></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:-2px" id="donor-dash-sub">Manage your listings</div>
+    </div>
+    <button class="topbar-icon" onclick="openAddListing()">➕</button>
+  </div>
+  <div id="donor-dash-content" style="padding:16px"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SCREEN 9 — PROFILE
+════════════════════════════════════════════════════ -->
+<div class="screen has-nav" id="scr-profile">
+  <div class="topbar">
+    <div style="flex:1;font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:800">Profile</div>
+    <button class="topbar-icon" onclick="logout()">🚪</button>
+  </div>
+  <div id="profile-content" style="padding:16px"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SCREEN 10 — NOTIFICATIONS
+════════════════════════════════════════════════════ -->
+<div class="screen has-nav" id="scr-notifications">
+  <div class="topbar">
+    <button class="back-btn-dark back-btn" onclick="goBack()">←</button>
+    <div style="flex:1;font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:800;margin-left:8px">Notifications</div>
+    <button class="topbar-icon" onclick="clearNotifications()" style="font-size:13px;width:auto;padding:0 10px">Clear</button>
+  </div>
+  <div id="notifications-content" style="padding:16px"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     BOTTOM NAV
+════════════════════════════════════════════════════ -->
+<nav class="bottom-nav" id="bottom-nav" style="display:none">
+  <button class="nav-btn active" id="nav-home" onclick="navTo('home')"><span class="nav-ico">🏠</span>Home</button>
+  <button class="nav-btn" id="nav-orders" onclick="navTo('orders')"><span class="nav-ico">📋</span>Requests</button>
+  <button class="nav-btn" id="nav-donate" onclick="navTo('donate')"><span class="nav-ico">🤝</span>Donate</button>
+  <button class="nav-btn" id="nav-profile" onclick="navTo('profile')"><span class="nav-ico">👤</span>Profile</button>
+</nav>
+
+<!-- Cart bar -->
+<div class="cart-bar" id="cart-bar" onclick="showScreen('scr-cart')">
+  <div class="cart-bar-left">
+    <div class="cart-bar-count" id="cart-bar-count">1 item</div>
+    <div class="cart-bar-total" id="cart-bar-total">Free Pickup</div>
+  </div>
+  <div class="cart-bar-cta">View Request →</div>
+</div>
+
+<!-- Add Listing Sheet -->
+<div class="overlay" id="listing-overlay" onclick="closeListing(event)">
+  <div class="sheet" style="max-height:90vh;overflow-y:auto">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Add Food Listing</div>
+    <div class="form-group"><label>Food Item Name</label><input id="lst-name" placeholder="e.g. Rice and Curry, Fresh Vegetables"></div>
+    <div class="form-group"><label>Category</label>
+      <select id="lst-cat">
+        <option>🍚 Cooked Meals</option><option>🥦 Vegetables</option><option>🍎 Fruits</option>
+        <option>🥛 Dairy</option><option>🍞 Baked Goods</option><option>🥗 Snacks</option><option>📦 Packaged Food</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Available Quantity</label><input id="lst-qty" placeholder="e.g. 5 kg, 20 portions"></div>
+    <div class="form-group"><label>Best Before</label><input id="lst-expiry" type="date"></div>
+    <div class="form-group"><label>Description</label><textarea id="lst-desc" placeholder="Tell receivers about this food…"></textarea></div>
+    <div class="form-group"><label>Pickup Time Window</label><input id="lst-time" placeholder="e.g. 6 PM – 8 PM today"></div>
+    <button class="btn-full btn-primary-full" onclick="saveListing()" style="margin-top:8px">Publish Listing ✨</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══ DATA LAYER ════════════════════════════════════════════════════════
+const db = {
+  get: k => { try { return JSON.parse(localStorage.getItem('ff_'+k)||'null'); } catch(e){return null;} },
+  set: (k,v) => localStorage.setItem('ff_'+k, JSON.stringify(v)),
+};
+
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+
+// ── SEED DATA ─────────────────────────────────────────────────────────
+function seedIfEmpty(){
+  if(db.get('seeded')) return;
+  const donors = [
+    { id:'d1', name:'Saravana Bhavan', type:'Restaurant', city:'Chennai', icon:'🍛', rating:'4.8', tags:['Veg','South Indian'], desc:'Famous restaurant donating surplus meals daily', frequency:'Daily', totalDonated:340, reviews:128 },
+    { id:'d2', name:'Sri Krishna Bakery', type:'Bakery',    city:'Chennai', icon:'🍞', rating:'4.6', tags:['Bakery','Sweets'], desc:'Fresh baked goods donated every evening', frequency:'Evening', totalDonated:210, reviews:87 },
+    { id:'d3', name:'Annapoorna Farm',   type:'Farm',       city:'Chennai', icon:'🌾', rating:'4.9', tags:['Organic','Vegetables'], desc:'Organic farm with surplus seasonal vegetables', frequency:'Weekly', totalDonated:520, reviews:203 },
+    { id:'d4', name:'Radha Aunty Kitchen', type:'Home Cook',city:'Chennai', icon:'🏠', rating:'4.7', tags:['Home Cooked','Mixed'], desc:'Homemade food prepared with love', frequency:'Daily', totalDonated:180, reviews:64 },
+    { id:'d5', name:'Grand Hotel Chennai', type:'Hotel',    city:'Chennai', icon:'🏨', rating:'4.5', tags:['Buffet','Non-Veg'], desc:'5-star hotel donating banquet surplus', frequency:'Occasional', totalDonated:890, reviews:312 },
+    { id:'d6', name:"Nature's Basket",   type:'Grocery',   city:'Chennai', icon:'🛒', rating:'4.4', tags:['Packaged','Dairy'], desc:'Grocery store donating near-expiry items', frequency:'Daily', totalDonated:290, reviews:95 },
+  ];
+  const listings = [
+    { id:'l1', donorId:'d1', name:'Rice + Sambar + Poriyal', cat:'🍚 Cooked Meals', qty:'30 portions', desc:'Freshly cooked traditional lunch', expiry:todayPlus(0), time:'2 PM – 5 PM', veg:true, status:'available', icon:'🍛' },
+    { id:'l2', donorId:'d1', name:'Idli & Chutney',          cat:'🍚 Cooked Meals', qty:'50 pieces',   desc:'Morning breakfast surplus',      expiry:todayPlus(0), time:'8 AM – 10 AM', veg:true, status:'available', icon:'🥘' },
+    { id:'l3', donorId:'d2', name:'Whole Wheat Bread',       cat:'🍞 Baked Goods',  qty:'15 loaves',   desc:'Freshly baked today morning',    expiry:todayPlus(1), time:'7 PM – 9 PM', veg:true, status:'available', icon:'🍞' },
+    { id:'l4', donorId:'d2', name:'Assorted Sweet Boxes',    cat:'🥗 Snacks',       qty:'8 boxes',     desc:'Mithai from yesterday surplus',  expiry:todayPlus(1), time:'6 PM – 8 PM', veg:true, status:'available', icon:'🍮' },
+    { id:'l5', donorId:'d3', name:'Fresh Tomatoes',          cat:'🥦 Vegetables',   qty:'10 kg',       desc:'Organic, farm fresh',            expiry:todayPlus(3), time:'Anytime',     veg:true, status:'available', icon:'🍅' },
+    { id:'l6', donorId:'d3', name:'Mixed Leafy Greens',      cat:'🥦 Vegetables',   qty:'5 kg',        desc:'Spinach, Methi, Coriander',      expiry:todayPlus(1), time:'Morning',     veg:true, status:'available', icon:'🥬' },
+    { id:'l7', donorId:'d4', name:'Chapathi + Dal',          cat:'🍚 Cooked Meals', qty:'20 portions', desc:'Home cooked dinner — made fresh', expiry:todayPlus(0), time:'7 PM – 9 PM', veg:true, status:'available', icon:'🍽' },
+    { id:'l8', donorId:'d5', name:'Chicken Biryani',         cat:'🍚 Cooked Meals', qty:'40 portions', desc:'Leftover from banquet function',  expiry:todayPlus(0), time:'3 PM – 6 PM', veg:false,status:'available', icon:'🍗' },
+    { id:'l9', donorId:'d6', name:'Mixed Dairy Pack',        cat:'🥛 Dairy',        qty:'20 packs',    desc:'Yogurt & butter near best-by',   expiry:todayPlus(2), time:'Anytime',     veg:true, status:'available', icon:'🥛' },
+  ];
+  db.set('donors', donors);
+  db.set('listings', listings);
+  db.set('requests', []);
+  db.set('notifications', [
+    { id:'n1', icon:'🎉', title:'Welcome to FeedForward!', msg:'Start browsing donors near you and request food.', time:'just now', read:false },
+    { id:'n2', icon:'🍛', title:'New listing from Saravana Bhavan', msg:'30 portions of Rice & Sambar available today 2–5 PM', time:'5 min ago', read:false },
+  ]);
+  db.set('seeded', true);
+}
+
+function todayPlus(days){
+  const d = new Date(); d.setDate(d.getDate()+days);
+  return d.toISOString().split('T')[0];
+}
+
+// ══ APP STATE ════════════════════════════════════════════════════════
+let currentUser = db.get('currentUser');
+let cart = db.get('cart') || [];
+let selectedRole = 'receiver';
+let screenHistory = [];
+let activeDonorId = null;
+
+// ══ NAVIGATION ═══════════════════════════════════════════════════════
+function showScreen(id, pushHistory=true){
+  if(pushHistory && id !== 'scr-splash' && id !== 'scr-login'){
+    const cur = document.querySelector('.screen.active');
+    if(cur) screenHistory.push(cur.id);
+  }
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  // bottom nav visibility
+  const showNav = ['scr-home','scr-orders','scr-donor-dash','scr-profile','scr-donor-profile','scr-cart','scr-tracking','scr-notifications'].includes(id);
+  document.getElementById('bottom-nav').style.display = showNav ? 'flex' : 'none';
+}
+
+function goBack(){
+  const prev = screenHistory.pop();
+  if(prev) showScreen(prev, false);
+  else showScreen('scr-home', false);
+}
+
+function navTo(tab){
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if(tab==='home'){
+    document.getElementById('nav-home').classList.add('active');
+    if(currentUser?.role==='donor') { renderDonorDash(); showScreen('scr-donor-dash'); }
+    else { renderHome(); showScreen('scr-home'); }
+  } else if(tab==='orders'){
+    document.getElementById('nav-orders').classList.add('active');
+    renderOrders(); showScreen('scr-orders');
+  } else if(tab==='donate'){
+    document.getElementById('nav-donate').classList.add('active');
+    if(currentUser?.role==='donor') openAddListing();
+    else { showToast('Become a donor to list food! 🤝'); }
+  } else if(tab==='profile'){
+    document.getElementById('nav-profile').classList.add('active');
+    renderProfile(); showScreen('scr-profile');
+  }
+}
+
+// ══ AUTH ══════════════════════════════════════════════════════════════
+function goLogin(){ showScreen('scr-login'); }
+
+function selectRole(r){
+  selectedRole = r;
+  document.getElementById('role-receiver').classList.toggle('selected', r==='receiver');
+  document.getElementById('role-donor').classList.toggle('selected', r==='donor');
+  document.getElementById('donor-extra').style.display = r==='donor' ? 'block' : 'none';
+}
+
+function doLogin(){
+  const name = document.getElementById('login-name').value.trim();
+  const phone = document.getElementById('login-phone').value.trim();
+  const city = document.getElementById('login-city').value;
+  if(!name||!phone){ showToast('Please fill all fields'); return; }
+  const user = { id: uid(), name, phone, city, role: selectedRole, joinDate: new Date().toLocaleDateString('en-IN') };
+  if(selectedRole==='donor'){
+    user.org = document.getElementById('donor-org').value;
+    user.foodtype = document.getElementById('donor-foodtype').value;
+    // register as donor
+    const donors = db.get('donors')||[];
+    const existing = donors.find(d=>d.name===user.org||d.name===name);
+    if(!existing){
+      donors.push({ id:uid(), name:user.org||name, type:'Individual', city, icon:'🏠', rating:'New', tags:['Home'], desc:'New food donor', frequency:'Occasional', totalDonated:0, reviews:0, userId:user.id });
+      db.set('donors', donors);
+    }
+  }
+  db.set('currentUser', user);
+  currentUser = user;
+  seedIfEmpty();
+  if(user.role==='donor'){ renderDonorDash(); showScreen('scr-donor-dash'); }
+  else { renderHome(); showScreen('scr-home'); }
+  document.getElementById('bottom-nav').style.display = 'flex';
+  document.getElementById('home-location').textContent = '📍 '+city;
+  updateCartBar();
+}
+
+function quickDemo(){
+  seedIfEmpty();
+  currentUser = { id:'demo', name:'Arjun Kumar', phone:'9000000000', city:'Chennai', role:'receiver', joinDate:'01/01/2024' };
+  db.set('currentUser', currentUser);
+  renderHome();
+  showScreen('scr-home');
+  document.getElementById('bottom-nav').style.display='flex';
+  updateCartBar();
+}
+
+function logout(){
+  db.set('currentUser', null);
+  currentUser = null;
+  cart = []; db.set('cart', cart);
+  showScreen('scr-splash');
+  document.getElementById('bottom-nav').style.display='none';
+}
+
+// ══ HOME SCREEN ═══════════════════════════════════════════════════════
+function renderHome(){
+  const donors = db.get('donors')||[];
+  const listings = db.get('listings')||[];
+  const notifs = (db.get('notifications')||[]).filter(n=>!n.read);
+  document.getElementById('notif-dot').style.display = notifs.length ? 'block' : 'none';
+  document.getElementById('cart-dot').style.display = cart.length ? 'block' : 'none';
+  document.getElementById('home-location').textContent = '📍 '+(currentUser?.city||'Chennai');
+
+  const totalDonated = donors.reduce((s,d)=>s+(d.totalDonated||0),0);
+  const availListings = listings.filter(l=>l.status==='available').length;
+
+  document.getElementById('home-content').innerHTML = `
+    <div class="hero">
+      <div class="hero-tag">🌱 Zero Waste Movement</div>
+      <div class="hero-title">Surplus food,<br>served with love.</div>
+      <div class="hero-sub">Find and request free food near you</div>
+      <div class="hero-search">
+        <span class="hero-search-ico">🔍</span>
+        <input placeholder="Search food, donors, categories…" id="home-search-input" oninput="filterHomeSearch(this.value)">
+      </div>
+    </div>
+
+    <div class="stats-strip">
+      <div class="stat-pill"><div class="stat-pill-val">${donors.length}</div><div class="stat-pill-lbl">Donors</div></div>
+      <div class="stat-pill"><div class="stat-pill-val">${availListings}</div><div class="stat-pill-lbl">Available</div></div>
+      <div class="stat-pill"><div class="stat-pill-val">${totalDonated}</div><div class="stat-pill-lbl">kg Saved</div></div>
+    </div>
+
+    <div style="padding:16px 16px 0">
+      <div class="notify-banner">
+        <span style="font-size:18px">🔥</span>
+        <span><b>${availListings} food listings</b> available right now near you!</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Browse by Type</div>
+      </div>
+      <div class="cat-scroll" id="cat-scroll">
+        ${['All','Cooked Meals','Vegetables','Fruits','Dairy','Baked Goods','Snacks'].map((c,i)=>`
+          <div class="cat-chip ${i===0?'active':''}" onclick="filterCat(this,'${c}')">
+            <span class="cat-chip-ico">${['🍽','🍛','🥦','🍎','🥛','🍞','🥗'][i]}</span>
+            <span class="cat-chip-lbl">${c}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="section" id="available-food-section">
+      <div class="section-header">
+        <div class="section-title">Available Now 🟢</div>
+      </div>
+      <div id="food-listings-home"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Our Donors</div>
+        <span class="see-all" onclick="showAllDonors()">See all</span>
+      </div>
+      <div class="donor-grid" id="donor-grid-home"></div>
+    </div>
+    <div style="height:20px"></div>
+  `;
+  renderHomeFoodListings(listings.filter(l=>l.status==='available'));
+  renderHomeDonors(donors.slice(0,4));
+}
+
+function renderHomeFoodListings(listings){
+  const el = document.getElementById('food-listings-home');
+  if(!el) return;
+  const donors = db.get('donors')||[];
+  if(!listings.length){ el.innerHTML=`<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">No listings available right now. Check back soon!</div>`; return; }
+  el.innerHTML = listings.map(l=>{
+    const donor = donors.find(d=>d.id===l.donorId)||{};
+    const inCart = cart.find(c=>c.listingId===l.id);
+    return `<div class="food-item">
+      <div class="food-item-img">${l.icon||'🍱'}</div>
+      <div class="food-item-info">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+          ${l.veg?'<div class="veg-dot"></div>':'<div class="veg-dot" style="border-color:#c0392b"><div style="width:6px;height:6px;border-radius:50%;background:#c0392b;margin:auto"></div></div>'}
+          <div class="food-item-name">${l.name}</div>
+        </div>
+        <div class="food-item-desc">${l.desc}</div>
+        <div class="food-item-qty">📦 ${l.qty} &nbsp;⏰ ${l.time}</div>
+        <div style="font-size:11px;color:var(--primary);margin-top:4px;font-weight:600">🏪 ${donor.name||'Unknown'}</div>
+      </div>
+      <div class="food-item-action">
+        ${inCart
+          ? `<div class="qty-control">
+              <button class="qty-btn" onclick="changeQty('${l.id}',-1)">−</button>
+              <span class="qty-num">${inCart.qty}</span>
+              <button class="qty-btn" onclick="changeQty('${l.id}',1)">+</button>
+            </div>`
+          : `<button class="add-btn" onclick="addToCart('${l.id}')">ADD</button>`
+        }
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterCat(el, cat){
+  document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  const listings = db.get('listings')||[];
+  const filtered = cat==='All' ? listings.filter(l=>l.status==='available') : listings.filter(l=>l.status==='available'&&l.cat.includes(cat));
+  renderHomeFoodListings(filtered);
+}
+
+function filterHomeSearch(val){
+  const listings = db.get('listings')||[];
+  const donors = db.get('donors')||[];
+  const v = val.toLowerCase();
+  const filtered = listings.filter(l=>l.status==='available'&&(l.name.toLowerCase().includes(v)||l.desc.toLowerCase().includes(v)||(donors.find(d=>d.id===l.donorId)?.name||'').toLowerCase().includes(v)));
+  renderHomeFoodListings(filtered);
+}
+
+function renderHomeDonors(donors){
+  const el = document.getElementById('donor-grid-home');
+  if(!el) return;
+  el.innerHTML = donors.map(d=>`
+    <div class="donor-card" onclick="openDonorProfile('${d.id}')">
+      <div class="donor-card-img">
+        ${d.icon}
+        <span class="donor-card-badge ${d.type==='Farm'?'green':''}">${d.type}</span>
+      </div>
+      <div class="donor-card-body">
+        <div class="donor-card-name">${d.name}</div>
+        <div class="donor-card-meta">${d.tags.map(t=>`<span class="tag tag-green">${t}</span>`).join(' ')}</div>
+        <div class="donor-card-footer">
+          <span class="rating">★ ${d.rating}</span>
+          <span class="timing">🔄 ${d.frequency}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function showAllDonors(){
+  const donors = db.get('donors')||[];
+  const el = document.getElementById('donor-grid-home');
+  if(el) { renderHomeDonors(donors); showToast('Showing all donors'); }
+}
+
+// ══ DONOR PROFILE ═════════════════════════════════════════════════════
+function openDonorProfile(donorId){
+  activeDonorId = donorId;
+  const donors = db.get('donors')||[];
+  const listings = db.get('listings')||[];
+  const donor = donors.find(d=>d.id===donorId);
+  if(!donor) return;
+  const myListings = listings.filter(l=>l.donorId===donorId&&l.status==='available');
+
+  const gradients = { Restaurant:'135deg,#FF6B35,#FF8C42', Bakery:'135deg,#8B5CF6,#C084FC', Farm:'135deg,#059669,#34D399', 'Home Cook':'135deg,#0EA5E9,#38BDF8', Hotel:'135deg,#DC2626,#F87171', Grocery:'135deg,#D97706,#FCD34D' };
+  const grad = gradients[donor.type]||'135deg,#2D6A4F,#52B788';
+
+  document.getElementById('donor-profile-content').innerHTML = `
+    <div class="profile-hero" style="background:linear-gradient(${grad})">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <button class="back-btn" onclick="goBack()">←</button>
+        <div>
+          <div class="profile-hero-ico">${donor.icon}</div>
+          <div class="profile-hero-name">${donor.name}</div>
+          <div class="profile-hero-meta">📍 ${donor.city} &nbsp;•&nbsp; ${donor.type}</div>
+          <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+            ${donor.tags.map(t=>`<span style="background:rgba(255,255,255,0.2);color:#fff;font-size:11px;padding:3px 10px;border-radius:12px;font-weight:600">${t}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="profile-info-strip">
+      <div class="pinfo"><div class="pinfo-val">★ ${donor.rating}</div><div class="pinfo-lbl">Rating</div></div>
+      <div class="pinfo"><div class="pinfo-val">${donor.totalDonated}</div><div class="pinfo-lbl">kg Donated</div></div>
+      <div class="pinfo"><div class="pinfo-val">${donor.reviews}</div><div class="pinfo-lbl">Reviews</div></div>
+      <div class="pinfo"><div class="pinfo-val">${myListings.length}</div><div class="pinfo-lbl">Available</div></div>
+    </div>
+    <div style="padding:16px">
+      <div style="background:var(--surface2);border-radius:12px;padding:14px;margin-bottom:16px;font-size:13px;color:var(--text2);line-height:1.6">
+        ${donor.desc}
+      </div>
+      <div class="section-title" style="margin-bottom:12px">Available Food 🟢</div>
+      ${myListings.length ? myListings.map(l=>{
+        const inCart = cart.find(c=>c.listingId===l.id);
+        return `<div class="food-item">
+          <div class="food-item-img">${l.icon||'🍱'}</div>
+          <div class="food-item-info">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+              ${l.veg?'<div class="veg-dot"></div>':''}
+              <div class="food-item-name">${l.name}</div>
+            </div>
+            <div class="food-item-desc">${l.desc}</div>
+            <div class="food-item-qty">📦 ${l.qty} &nbsp;⏰ ${l.time}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">📅 Best before: ${l.expiry}</div>
+          </div>
+          <div class="food-item-action">
+            ${inCart
+              ? `<div class="qty-control"><button class="qty-btn" onclick="changeQty('${l.id}',-1)">−</button><span class="qty-num">${inCart.qty}</span><button class="qty-btn" onclick="changeQty('${l.id}',1)">+</button></div>`
+              : `<button class="add-btn" onclick="addToCart('${l.id}')">ADD</button>`
+            }
+          </div>
+        </div>`;
+      }).join('') : `<div class="empty"><div class="empty-ico">😔</div><div class="empty-sub">No listings available right now.<br>Check back later!</div></div>`}
+    </div>
+    <div style="height:20px"></div>
+  `;
+  showScreen('scr-donor-profile');
+}
+
+// ══ CART ══════════════════════════════════════════════════════════════
+function addToCart(listingId){
+  const listings = db.get('listings')||[];
+  const listing = listings.find(l=>l.id===listingId);
+  const donors = db.get('donors')||[];
+  const donor = donors.find(d=>d.id===listing.donorId)||{};
+  if(!cart.find(c=>c.listingId===listingId)){
+    cart.push({ listingId, qty:1, name:listing.name, icon:listing.icon||'🍱', donorName:donor.name, donorId:listing.donorId });
+    db.set('cart', cart);
+  }
+  updateCartBar();
+  showToast('Added to your request 🛒');
+  // re-render if on donor profile
+  if(document.getElementById('scr-donor-profile').classList.contains('active') && activeDonorId){
+    openDonorProfile(activeDonorId);
+  } else { renderHome(); }
+}
+
+function changeQty(listingId, delta){
+  const idx = cart.findIndex(c=>c.listingId===listingId);
+  if(idx<0) return;
+  cart[idx].qty += delta;
+  if(cart[idx].qty <= 0) cart.splice(idx,1);
+  db.set('cart', cart);
+  updateCartBar();
+  if(document.getElementById('scr-cart').classList.contains('active')) renderCart();
+  else if(document.getElementById('scr-donor-profile').classList.contains('active')&&activeDonorId) openDonorProfile(activeDonorId);
+  else renderHome();
+}
+
+function updateCartBar(){
+  const bar = document.getElementById('cart-bar');
+  const dot = document.getElementById('cart-dot');
+  if(cart.length){
+    bar.classList.add('show');
+    dot.style.display='block';
+    document.getElementById('cart-bar-count').textContent = cart.length+' item'+(cart.length>1?'s':'');
+    document.getElementById('cart-bar-total').textContent = 'Free Pickup';
+  } else {
+    bar.classList.remove('show');
+    dot.style.display='none';
+  }
+}
+
+function renderCart(){
+  const el = document.getElementById('cart-content');
+  if(!cart.length){
+    el.innerHTML=`<div class="empty"><div class="empty-ico">🛒</div><div class="empty-title">Your cart is empty</div><div class="empty-sub">Browse donors and add food to your request.</div><br><button class="btn-full btn-primary-full" onclick="navTo('home')">Browse Food</button></div>`;
+    return;
+  }
+  el.innerHTML = `
+    <div class="section-title" style="margin-bottom:14px">Your Food Request</div>
+    ${cart.map(c=>`
+      <div class="cart-item">
+        <div class="cart-item-ico">${c.icon}</div>
+        <div class="cart-item-info">
+          <div class="cart-item-name">${c.name}</div>
+          <div class="cart-item-donor">from ${c.donorName}</div>
+        </div>
+        <div class="qty-control">
+          <button class="qty-btn" onclick="changeQty('${c.listingId}',-1)">−</button>
+          <span class="qty-num">${c.qty}</span>
+          <button class="qty-btn" onclick="changeQty('${c.listingId}',1)">+</button>
+        </div>
+      </div>`).join('')}
+
+    <div class="card" style="background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:16px;margin:16px 0">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;margin-bottom:12px">Pickup Details</div>
+      <div class="form-group"><label>Your Name</label><input id="checkout-name" value="${currentUser?.name||''}" placeholder="Full name"></div>
+      <div class="form-group"><label>Phone</label><input id="checkout-phone" value="${currentUser?.phone||''}" placeholder="Contact number"></div>
+      <div class="form-group"><label>Pickup Address / Location</label><textarea id="checkout-addr" placeholder="Where will you pick up?" rows="2"></textarea></div>
+      <div class="form-group"><label>Special Note (optional)</label><input id="checkout-note" placeholder="Any dietary requirement?"></div>
+    </div>
+
+    <div style="background:var(--surface2);border-radius:12px;padding:16px;margin-bottom:16px">
+      <div class="bill-row"><span>Items</span><span>${cart.length}</span></div>
+      <div class="bill-row"><span>Food Cost</span><span style="color:var(--success)">FREE</span></div>
+      <div class="bill-row"><span>Pickup Charge</span><span style="color:var(--success)">FREE</span></div>
+      <div class="bill-row"><span>Total</span><span>₹0 🎉</span></div>
+    </div>
+
+    <button class="btn-full btn-primary-full" onclick="placeRequest()">Confirm Request →</button>
+    <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:10px">You'll receive a confirmation and pickup instructions</p>
+    <div style="height:20px"></div>
+  `;
+}
+
+// ══ REQUESTS / ORDERS ══════════════════════════════════════════════════
+function placeRequest(){
+  const name = document.getElementById('checkout-name')?.value||currentUser?.name||'User';
+  if(!cart.length){ showToast('Cart is empty!'); return; }
+  const donors = db.get('donors')||[];
+  const requests = db.get('requests')||[];
+  const req = {
+    id: uid(),
+    userId: currentUser?.id,
+    userName: name,
+    phone: document.getElementById('checkout-phone')?.value||'',
+    address: document.getElementById('checkout-addr')?.value||'',
+    note: document.getElementById('checkout-note')?.value||'',
+    items: [...cart],
+    status: 'confirmed',
+    date: new Date().toLocaleString('en-IN'),
+    steps: [
+      { title:'Request Confirmed', sub:'Your request has been received', time:nowTime(), done:true, active:false },
+      { title:'Donor Preparing', sub:'Donor is packing your food', time:'', done:false, active:true },
+      { title:'Ready for Pickup', sub:'Head to the pickup location', time:'', done:false, active:false },
+      { title:'Collected', sub:'You picked up the food. Thank you!', time:'', done:false, active:false },
+    ]
+  };
+  requests.push(req);
+  db.set('requests', requests);
+
+  // push notification
+  const notifs = db.get('notifications')||[];
+  notifs.unshift({ id:uid(), icon:'✅', title:'Request Confirmed!', msg:`Your food request from ${cart.map(c=>c.donorName).join(', ')} is confirmed.`, time:'just now', read:false });
+  db.set('notifications', notifs);
+  document.getElementById('notif-dot').style.display='block';
+
+  cart = []; db.set('cart', cart);
+  updateCartBar();
+  renderTracking(req.id);
+  showScreen('scr-tracking');
+}
+
+function nowTime(){ return new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}); }
+
+function renderTracking(reqId){
+  const requests = db.get('requests')||[];
+  const req = requests.find(r=>r.id===reqId)||requests[requests.length-1];
+  if(!req){ document.getElementById('tracking-content').innerHTML='<div class="empty"><div class="empty-ico">📋</div><div class="empty-sub">No active request</div></div>'; return; }
+  document.getElementById('tracking-content').innerHTML = `
+    <div style="text-align:center;padding:24px 0">
+      <div class="success-circle">✅</div>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:800;margin-bottom:6px">Request Confirmed!</div>
+      <div style="font-size:13px;color:var(--muted)">ID: #${req.id.toUpperCase().slice(0,8)}</div>
+    </div>
+
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;margin-bottom:4px">Items Requested</div>
+      <div style="font-size:13px;color:var(--muted)">${req.items.map(i=>`${i.icon} ${i.name} ×${i.qty}`).join(' &nbsp;|&nbsp; ')}</div>
+    </div>
+
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;margin-bottom:14px">Live Tracking</div>
+      ${req.steps.map((s,i)=>`
+        <div class="track-step">
+          <div class="track-ico ${s.done?'done':s.active?'active':'pending'}">
+            ${s.done?'✅':s.active?'⏳':'⬜'}
+          </div>
+          <div>
+            <div class="track-title" style="color:${s.done?'var(--success)':s.active?'var(--primary)':'var(--muted)'}">${s.title}</div>
+            <div class="track-sub">${s.sub}</div>
+            ${s.time?`<div class="track-time">${s.time}</div>`:''}
+          </div>
+        </div>`).join('')}
+    </div>
+
+    <button class="btn-full" style="background:var(--secondary-light);color:var(--secondary);font-family:'Bricolage Grotesque',sans-serif;font-size:15px;font-weight:700;padding:14px;border-radius:14px;border:none;cursor:pointer;margin-bottom:10px" onclick="simulateProgress('${req.id}')">
+      ▶ Simulate Progress (Demo)
+    </button>
+    <button class="btn-full btn-ghost-full" onclick="navTo('home')">Back to Home</button>
+  `;
+}
+
+let simStep = 1;
+function simulateProgress(reqId){
+  const requests = db.get('requests')||[];
+  const req = requests.find(r=>r.id===reqId);
+  if(!req) return;
+  if(simStep < req.steps.length){
+    req.steps[simStep].done = true;
+    req.steps[simStep].active = false;
+    req.steps[simStep].time = nowTime();
+    if(simStep+1 < req.steps.length) req.steps[simStep+1].active = true;
+    simStep++;
+    if(simStep===req.steps.length) req.status='completed';
+    db.set('requests', requests);
+    renderTracking(reqId);
+    showToast(req.steps[simStep-1].title+' ✅');
+  } else {
+    showToast('Request completed! 🎉'); simStep=1;
+  }
+}
+
+function renderOrders(){
+  const requests = (db.get('requests')||[]).filter(r=>!currentUser||r.userId===currentUser.id||currentUser.id==='demo');
+  document.getElementById('orders-content').innerHTML = requests.length ? [...requests].reverse().map(r=>`
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;cursor:pointer" onclick="showTrackingForOrder('${r.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div>
+          <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800">${r.items.map(i=>i.name).join(', ')}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px">📅 ${r.date}</div>
+        </div>
+        <span class="tag ${r.status==='completed'?'tag-green':r.status==='confirmed'?'tag-orange':'tag-blue'}">${r.status}</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted)">from ${[...new Set(r.items.map(i=>i.donorName))].join(', ')}</div>
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:12px;color:var(--primary);font-weight:600">${r.steps.filter(s=>s.done).length}/${r.steps.length} steps done</span>
+        <span style="font-size:12px;color:var(--muted)">Tap to track →</span>
+      </div>
+    </div>`).join('') : `<div class="empty"><div class="empty-ico">📋</div><div class="empty-title">No requests yet</div><div class="empty-sub">Browse donors and request food to see your history here.</div><br><button class="btn-full btn-primary-full" onclick="navTo('home')">Browse Food</button></div>`;
+}
+
+function showTrackingForOrder(reqId){
+  simStep=1;
+  renderTracking(reqId);
+  showScreen('scr-tracking');
+}
+
+// ══ DONOR DASHBOARD ═══════════════════════════════════════════════════
+function renderDonorDash(){
+  const donors = db.get('donors')||[];
+  const listings = db.get('listings')||[];
+  const user = currentUser;
+  const myDonor = donors.find(d=>d.userId===user?.id) || donors[0];
+  const myListings = listings.filter(l=>l.donorId===myDonor?.id);
+  const requests = db.get('requests')||[];
+  const myRequests = requests.filter(r=>r.items.some(i=>i.donorId===myDonor?.id));
+
+  document.getElementById('donor-dash-content').innerHTML = `
+    <div style="background:linear-gradient(135deg,var(--secondary),#52B788);border-radius:16px;padding:20px;margin-bottom:16px;color:#fff">
+      <div style="font-size:36px;margin-bottom:8px">${myDonor?.icon||'🏠'}</div>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:20px;font-weight:800">${myDonor?.name||user?.name}</div>
+      <div style="font-size:13px;opacity:0.85;margin-top:4px">${myDonor?.type||'Individual'} &nbsp;•&nbsp; ${myDonor?.city||user?.city}</div>
+      <div style="display:flex;gap:16px;margin-top:16px">
+        <div><div style="font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:800">${myDonor?.totalDonated||0}</div><div style="font-size:11px;opacity:0.8">kg donated</div></div>
+        <div><div style="font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:800">${myListings.length}</div><div style="font-size:11px;opacity:0.8">listings</div></div>
+        <div><div style="font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:800">${myRequests.length}</div><div style="font-size:11px;opacity:0.8">requests</div></div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-bottom:16px">
+      <button class="btn-full btn-primary-full" style="padding:12px" onclick="openAddListing()">➕ Add Listing</button>
+      <button class="btn-full btn-ghost-full" style="padding:12px;flex:0.8" onclick="showScreen('scr-orders');renderOrders()">📋 Requests</button>
+    </div>
+
+    <div class="section-title" style="margin-bottom:12px">My Listings</div>
+    ${myListings.length ? myListings.map(l=>`
+      <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center;margin-bottom:10px">
+        <div style="font-size:36px">${l.icon||'🍱'}</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:14px">${l.name}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">📦 ${l.qty} &nbsp;⏰ ${l.time}</div>
+          <div style="font-size:12px;color:var(--muted)">📅 ${l.expiry}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+          <span class="tag ${l.status==='available'?'tag-green':'tag-orange'}">${l.status}</span>
+          <button onclick="toggleListingStatus('${l.id}')" style="font-size:11px;border:none;background:var(--surface2);color:var(--text2);padding:4px 10px;border-radius:8px;cursor:pointer">${l.status==='available'?'Mark Closed':'Reopen'}</button>
+          <button onclick="deleteListing('${l.id}')" style="font-size:11px;border:none;background:#FEE2E2;color:#DC2626;padding:4px 10px;border-radius:8px;cursor:pointer">Delete</button>
+        </div>
+      </div>`).join('') : `<div class="empty" style="padding:30px 0"><div class="empty-ico">📦</div><div class="empty-sub">No listings yet. Add your first one!</div></div>`}
+    <div style="height:20px"></div>
+  `;
+}
+
+function toggleListingStatus(id){
+  const listings = db.get('listings')||[];
+  const l = listings.find(x=>x.id===id);
+  if(l) l.status = l.status==='available'?'closed':'available';
+  db.set('listings', listings);
+  renderDonorDash();
+  showToast('Listing updated ✅');
+}
+
+function deleteListing(id){
+  if(!confirm('Delete this listing?')) return;
+  db.set('listings', (db.get('listings')||[]).filter(l=>l.id!==id));
+  renderDonorDash();
+  showToast('Deleted 🗑');
+}
+
+// ══ ADD LISTING ════════════════════════════════════════════════════════
+function openAddListing(){
+  document.getElementById('lst-expiry').value = todayPlus(0);
+  document.getElementById('listing-overlay').classList.add('open');
+}
+
+function closeListing(e){
+  if(e.target===document.getElementById('listing-overlay'))
+    document.getElementById('listing-overlay').classList.remove('open');
+}
+
+function saveListing(){
+  const name = document.getElementById('lst-name').value.trim();
+  if(!name){ showToast('Enter food item name'); return; }
+  const donors = db.get('donors')||[];
+  const myDonor = donors.find(d=>d.userId===currentUser?.id)||donors[0];
+  const catIcons = { '🍚 Cooked Meals':'🍛','🥦 Vegetables':'🥦','🍎 Fruits':'🍎','🥛 Dairy':'🥛','🍞 Baked Goods':'🍞','🥗 Snacks':'🥗','📦 Packaged Food':'📦' };
+  const cat = document.getElementById('lst-cat').value;
+  const listing = {
+    id: uid(),
+    donorId: myDonor?.id||'d1',
+    name,
+    cat,
+    qty: document.getElementById('lst-qty').value||'Some quantity',
+    desc: document.getElementById('lst-desc').value||'Fresh surplus food',
+    expiry: document.getElementById('lst-expiry').value,
+    time: document.getElementById('lst-time').value||'Today',
+    veg: true,
+    status: 'available',
+    icon: catIcons[cat]||'🍱'
+  };
+  const listings = db.get('listings')||[];
+  listings.push(listing);
+  db.set('listings', listings);
+  document.getElementById('listing-overlay').classList.remove('open');
+  ['lst-name','lst-qty','lst-desc','lst-time'].forEach(id=>document.getElementById(id).value='');
+  renderDonorDash();
+  showToast('Listing published! 🎉');
+}
+
+// ══ PROFILE ═══════════════════════════════════════════════════════════
+function renderProfile(){
+  const user = currentUser||{ name:'Guest', phone:'', city:'', role:'receiver', joinDate:'—' };
+  const requests = db.get('requests')||[];
+  const myReqs = requests.filter(r=>r.userId===user.id||user.id==='demo');
+  document.getElementById('profile-content').innerHTML = `
+    <div style="background:var(--surface);border-radius:16px;padding:24px;margin-bottom:16px;text-align:center">
+      <div class="profile-avatar">${user.role==='donor'?'🤝':'👤'}</div>
+      <div class="profile-name">${user.name}</div>
+      <div class="profile-email">📞 ${user.phone} &nbsp;•&nbsp; 📍 ${user.city}</div>
+      <div style="margin-top:10px"><span class="tag tag-green" style="font-size:12px;padding:4px 14px">${user.role==='donor'?'🤝 Food Donor':'🙏 Food Receiver'}</span></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div style="background:var(--primary-light);border-radius:12px;padding:14px;text-align:center">
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:26px;font-weight:800;color:var(--primary)">${myReqs.length}</div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">Requests</div>
+      </div>
+      <div style="background:var(--secondary-light);border-radius:12px;padding:14px;text-align:center">
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:26px;font-weight:800;color:var(--secondary)">${myReqs.filter(r=>r.status==='completed').length}</div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">Completed</div>
+      </div>
+    </div>
+
+    <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px">
+      <div class="menu-item" onclick="navTo('orders')"><span class="menu-item-ico">📋</span><span class="menu-item-label">My Requests</span><span class="menu-item-arrow">›</span></div>
+      <div class="menu-item" onclick=""><span class="menu-item-ico">📍</span><span class="menu-item-label">Saved Addresses</span><span class="menu-item-arrow">›</span></div>
+      <div class="menu-item" onclick="showScreen('scr-notifications')"><span class="menu-item-ico">🔔</span><span class="menu-item-label">Notifications</span><span class="menu-item-arrow">›</span></div>
+      ${user.role==='receiver'?`<div class="menu-item" onclick="switchToDonor()"><span class="menu-item-ico">🤝</span><span class="menu-item-label">Become a Donor</span><span class="menu-item-arrow">›</span></div>`:''}
+      <div class="menu-item" onclick=""><span class="menu-item-ico">⭐</span><span class="menu-item-label">Rate the App</span><span class="menu-item-arrow">›</span></div>
+      <div class="menu-item" onclick=""><span class="menu-item-ico">❓</span><span class="menu-item-label">Help & Support</span><span class="menu-item-arrow">›</span></div>
+    </div>
+
+    <button class="btn-full" style="background:#FEE2E2;color:#DC2626;font-family:'Bricolage Grotesque',sans-serif;font-size:15px;font-weight:700;padding:14px;border-radius:14px;border:none;cursor:pointer" onclick="logout()">🚪 Logout</button>
+    <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:12px">FeedForward v1.0 • Fighting food waste together 🌱</p>
+    <div style="height:20px"></div>
+  `;
+}
+
+function switchToDonor(){
+  if(!currentUser) return;
+  currentUser.role = 'donor';
+  db.set('currentUser', currentUser);
+  renderDonorDash();
+  showScreen('scr-donor-dash');
+  showToast('Welcome, Donor! 🤝 Add your first listing');
+}
+
+// ══ NOTIFICATIONS ══════════════════════════════════════════════════════
+function renderNotifications(){
+  const notifs = db.get('notifications')||[];
+  // mark all read
+  notifs.forEach(n=>n.read=true);
+  db.set('notifications', notifs);
+  document.getElementById('notif-dot').style.display='none';
+  document.getElementById('notifications-content').innerHTML = notifs.length
+    ? notifs.map(n=>`
+      <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px;display:flex;gap:12px;margin-bottom:10px">
+        <div style="font-size:28px;flex-shrink:0">${n.icon}</div>
+        <div>
+          <div style="font-weight:700;font-size:14px">${n.title}</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:3px;line-height:1.4">${n.msg}</div>
+          <div style="font-size:11px;color:var(--primary);margin-top:6px">${n.time}</div>
+        </div>
+      </div>`).join('')
+    : `<div class="empty"><div class="empty-ico">🔔</div><div class="empty-title">No notifications</div><div class="empty-sub">You're all caught up!</div></div>`;
+}
+
+function clearNotifications(){
+  db.set('notifications',[]);
+  document.getElementById('notifications-content').innerHTML=`<div class="empty"><div class="empty-ico">🔔</div><div class="empty-sub">All cleared!</div></div>`;
+}
+
+// ══ TOAST ══════════════════════════════════════════════════════════════
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// ══ INTERCEPT showScreen to trigger renders ════════════════════════════
+const _showScreen = showScreen;
+window.showScreen = function(id, push=true){
+  _showScreen(id, push);
+  if(id==='scr-cart') renderCart();
+  if(id==='scr-orders') renderOrders();
+  if(id==='scr-profile') renderProfile();
+  if(id==='scr-donor-dash') renderDonorDash();
+  if(id==='scr-notifications') renderNotifications();
+};
+
+// ══ INIT ══════════════════════════════════════════════════════════════
+seedIfEmpty();
+if(db.get('currentUser')){
+  currentUser = db.get('currentUser');
+  cart = db.get('cart')||[];
+  if(currentUser.role==='donor'){ renderDonorDash(); showScreen('scr-donor-dash',false); }
+  else { renderHome(); showScreen('scr-home',false); }
+  document.getElementById('bottom-nav').style.display='flex';
+  updateCartBar();
+}
+</script>
+</body>
+</html>
